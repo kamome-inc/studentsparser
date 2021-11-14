@@ -22,6 +22,8 @@ cur.execute("""
             );
 """)
 
+
+# В новой версии эта вспомогательная таблица будет удалена.
 cur.execute("""
             Create Table Students(
             Id INTEGER PRIMARY KEY autoincrement,
@@ -29,5 +31,33 @@ cur.execute("""
             Student text);
 """)
 
+
+cur.execute("""
+            Create Table Groups(
+            ID int,
+            GroupName text,
+            Subject text,
+            LessonType text,
+            GroupSameName text)
+""")
+
+cur.execute("""
+            Create Table StudentsInGroup (
+            ID INTEGER PRIMARY KEY autoincrement,
+            GroupId int,
+            Name text,
+            Comment text
+            )
+""")
+
+
+cur.execute("""
+            CREATE Table Attendance (
+            ID INTEGER PRIMARY KEY autoincrement,
+            GroupId int,
+            StudentInGroupId int,
+            Comment text)
+            
+""")
 con.commit()
 

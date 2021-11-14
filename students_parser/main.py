@@ -3,6 +3,53 @@ import sqlite3
 
 dbname = 'first_test.db'
 
+
+class Groups(object):
+    """ """
+    def __init__(self, group_name, subject, lesson_type, students):
+        self.Name = group_name
+        self.Subject = subject
+        self.LessonType = lesson_type.strip()
+        self.Students = students
+        # Может быть использовать отдельный класс под студента с комментариями? хранить все в массиве?
+        # не. Отдельная таблица и отдельный класс. Но тут пока что хранится массив студентов как обьектов класса
+
+    def get_group(self):
+        print("ГРУППА:-> ", self.Name, self.Subject, self.LessonType)
+        for student in self.Students:
+            student.get_student()
+
+    def add_group_to_db(self):
+        print(f"add group {self.Name}")
+        con = sqlite3.connect(dbname)
+        cur = con.cursor()
+        a = cur.execute("select * from Groups")
+        a = a.fetchall()
+        if len(a) > 0:
+            lastindex = int(a[-1][0]) + 1  # возможны ошибки при удалении строк. ПРОВЕРЯЙ
+        else:
+            lastindex = 0
+        cur.execute(f"Insert into Groups VALUES ({lastindex}, '{self.Name}', '{self.Subject}', '{self.LessonType}', '')")
+        for student in self.Students:
+            print(f"add student")
+            cur.execute(student.add_student_to_db(lastindex))
+        con.commit()
+        con.close()
+
+
+class Students(object):
+    """ """
+    def __init__(self,  name, comment):
+        self.Name = name
+        self.Comment = comment
+
+    def get_student(self):
+        print(self.Name)
+
+    def add_student_to_db(self, group_id):
+        return f"INSERT INTO StudentsInGroup (GroupId, Name, Comment) VALUES ({group_id}, '{self.Name}', '{self.Comment}')"
+
+
 class Lessons(object):
     """class for all lessons"""
     def __init__(self, type, group, day, time, students):
@@ -57,8 +104,9 @@ class Lessons(object):
         con.commit()
         con.close()
 
+
 def get_lessons_from_file(name_of_file, all_lessons):
-    f = open(name_of_file)
+    f = open(name_of_file, encoding="UTF8")
     input = f.readlines()
     pary = []
 
@@ -99,17 +147,52 @@ def get_lessons_from_file(name_of_file, all_lessons):
     else:
         print("ФАйл ", name_of_file, ' необходимо обработать вручную')
 
+
+def get_groups_from_file(NameOfFile, ListOfGroups):
+    f = open(NameOfFile, encoding="UTF8")
+    f = f.readlines()
+    ALLstudents = []
+    for str in f[1:]:
+        student = Students(str[:-1], "")
+        ALLstudents.append(student)
+    group, lesson, type = f[0][:-1].split("|")
+    newgroup = Groups(group, lesson, type, ALLstudents)
+    ListOfGroups.append(newgroup)
+
+
 AL = []
-
-
-for root, dirs, files in os.walk('1'):
+for root, dirs, files in os.walk('2'):
     for file in files:
-        print("FIle: ", file)
-        get_lessons_from_file('1\\' + file, AL)
-
-
-
+        print(dirs, "FIle: ", file)
+        get_lessons_from_file('2\\' + file, AL)
 for lesson in AL:
     lesson.clear_students()
-    lesson.add_lesson_to_db()
+    lesson.get_lesson()
 
+
+'''
+# Это добавление списков групп в БД
+ALLGroups = []
+for root, dirs, files in os.walk('3'):
+    for file in files:
+        print(dirs, "FIle: ", file)
+        get_groups_from_file('3\\' + file, ALLGroups)
+for group in ALLGroups:
+    group.add_group_to_db()
+
+
+# А это считывание посещаемости и внесение ее в БД
+AL = []
+for root, dirs, files in os.walk('2'):
+    for file in files:
+        print(dirs, "FIle: ", file)
+        get_lessons_from_file('2\\' + file, AL)
+for lesson in AL:
+    lesson.clear_students()
+    lesson.get_lesson()
+    lesson.add_lesson_to_db()
+    
+
+
+
+'''
