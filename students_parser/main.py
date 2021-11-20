@@ -105,6 +105,19 @@ class Lessons(object):
         con.close()
 
 
+class GroopsFromDB(Groups):
+    """Группы, только полученные из БД. Возможно вообще лишняя фигня. Потому что нахер надо. хз пока не юзать"""
+    def __init__(self, id, group_name, subject, lesson_type, students):
+        super().__init__(group_name, subject, lesson_type, students)
+        self.Id = id
+
+    def get_group_name(self):
+        return self.Name
+
+    def creation_from_sql(self):
+        pass
+
+
 def get_lessons_from_file(name_of_file, all_lessons):
     f = open(name_of_file, encoding="UTF8")
     input = f.readlines()
@@ -160,17 +173,8 @@ def get_groups_from_file(NameOfFile, ListOfGroups):
     ListOfGroups.append(newgroup)
 
 
-AL = []
-for root, dirs, files in os.walk('2'):
-    for file in files:
-        print(dirs, "FIle: ", file)
-        get_lessons_from_file('2\\' + file, AL)
-for lesson in AL:
-    lesson.clear_students()
-    lesson.get_lesson()
-
-
 '''
+
 # Это добавление списков групп в БД
 ALLGroups = []
 for root, dirs, files in os.walk('3'):
@@ -193,6 +197,5 @@ for lesson in AL:
     lesson.add_lesson_to_db()
     
 
-
-
 '''
+

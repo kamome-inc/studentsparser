@@ -27,7 +27,7 @@ cur.execute("""
 cur.execute("""
             Create Table Students(
             Id INTEGER PRIMARY KEY autoincrement,
-            LessonId,
+            LessonId int,
             Student text);
 """)
 
